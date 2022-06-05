@@ -63,7 +63,7 @@ add_library(${CONAN_PACKAGE_NAME} SHARED
 
         src/ArucoInput.cpp src/ArucoOutput.cpp src/ArucoDebugOutput.cpp src/ArucoDebugOutput.h)
 
-conan_target_link_libraries(${CONAN_PACKAGE_NAME})
+conan_target_link_libraries(${CONAN_PACKAGE_NAME} CONAN_PKG::aruco)
 
 
 set_target_properties(${CONAN_PACKAGE_NAME} PROPERTIES VERSION ${CONAN_PACKAGE_VERSION})

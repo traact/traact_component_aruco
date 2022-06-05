@@ -4,7 +4,7 @@
 #include <traact/traact.h>
 #include <traact/vision.h>
 #include <traact/spatial.h>
-#include <opencv2/aruco.hpp>
+#include "aruco.h"
 
 namespace traact::component::aruco {
 
@@ -26,14 +26,14 @@ namespace traact::component::aruco {
         void SetDebugOutput(ArucoDebugOutputComponent* debug_output_component);
 
         bool TrackMarker(TimestampType ts, const cv::Mat &image, const traact::vision::CameraCalibration &calibration,
-                         const cv::Ptr<cv::aruco::Dictionary> &dictionary,
-                         const cv::Ptr<cv::aruco::DetectorParameters> &parameter, double marker_size);
+                         const ::aruco::Dictionary::DICT_TYPES &dictionary, double marker_size);
 
         void SendNoValidInput(TimestampType ts);
 
     private:
         std::map<int, ArucoOutputComponent*> output_components_;
         ArucoDebugOutputComponent* debug_output_component_{nullptr};
+
 
     RTTR_ENABLE(Module)
     };

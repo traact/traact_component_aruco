@@ -36,7 +36,8 @@ class Traact(ConanFile):
             self.requires("gtest/1.10.0")
         
         self.requires("traact_spatial/%s@camposs/stable" % self.version)
-        self.requires("traact_vision/%s@camposs/stable" % self.version)        
+        self.requires("traact_vision/%s@camposs/stable" % self.version)
+        self.requires("aruco/3.1.15@camposs/stable")
 
 
 

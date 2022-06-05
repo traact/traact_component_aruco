@@ -49,21 +49,35 @@ namespace traact::component::aruco {
 
             pattern->addConsumerPort("input", ImageHeader::MetaType);
             pattern->addConsumerPort("input_calibration", CameraCalibrationHeader::MetaType);
-            pattern->addParameter("Dictionary","DICT_4X4_50", {"DICT_4X4_50", "DICT_5X5_50", "DICT_6X6_50"})
+            pattern->addParameter("Dictionary","ARUCO_MIP_36h12",
+                                  {"ARUCO_MIP_36h12", "ARUCO", "ARUCO_MIP_25h7", "ARUCO_MIP_16h3",
+                                   "ARTAG", "ARTOOLKITPLUS", "ARTOOLKITPLUSBCH",
+                                   "TAG16h5", "TAG25h7", "TAG25h9", "TAG36h11", "TAG36h10"})
             .addParameter("MarkerSize", 0.08);
             return pattern;
         }
 
         bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
             aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-            cv::aruco::PREDEFINED_DICTIONARY_NAME dict;
-            pattern::setValueFromParameter(parameter,"Dictionary",dict,"DICT_4X4_50", {{"DICT_4X4_50",cv::aruco::DICT_4X4_50 },{ "DICT_5X5_50",cv::aruco::DICT_5X5_50},{"DICT_6X6_50",cv::aruco::DICT_6X6_50} });
-            pattern::setValueFromParameter(parameter,"MarkerSize",marker_size_, 0.08);
+            ::aruco::Dictionary::DICT_TYPES dict;
+            pattern::setValueFromParameter(parameter,"Dictionary", dict, "ARUCO_MIP_36h12",
+                                           {
+                                                {"ARUCO_MIP_36h12", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_36h12},
+                                                {"ARUCO", ::aruco::Dictionary::DICT_TYPES::ARUCO},
+                                                {"ARUCO_MIP_25h7", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_25h7},
+                                                {"ARUCO_MIP_16h3", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_16h3},
+                                                {"ARTAG", ::aruco::Dictionary::DICT_TYPES::ARTAG},
+                                                {"ARTOOLKITPLUS", ::aruco::Dictionary::DICT_TYPES::ARTOOLKITPLUS},
+                                                {"ARTOOLKITPLUSBCH", ::aruco::Dictionary::DICT_TYPES::ARTOOLKITPLUSBCH},
+                                                {"TAG16h5", ::aruco::Dictionary::DICT_TYPES::TAG16h5},
+                                                {"TAG25h7", ::aruco::Dictionary::DICT_TYPES::TAG25h7},
+                                                {"TAG25h9", ::aruco::Dictionary::DICT_TYPES::TAG25h9},
+                                                {"TAG36h11", ::aruco::Dictionary::DICT_TYPES::TAG36h11},
+                                                {"TAG36h10", ::aruco::Dictionary::DICT_TYPES::TAG36h10}
+                                           });
+            pattern::setValueFromParameter(parameter,"MarkerSize",marker_size_, 0.10);
 
-            dictionary_ = cv::aruco::getPredefinedDictionary(dict);
-
-            parameter_ = cv::aruco::DetectorParameters::create();
-
+            dictionary_ = dict;
             return true;
         }
 
@@ -72,8 +86,7 @@ namespace traact::component::aruco {
             const auto& input_image = data.getInput<ImageHeader::NativeType, ImageHeader>(0).GetCpuMat();
             const auto& input_calibration = data.getInput<CameraCalibrationHeader::NativeType, CameraCalibrationHeader>(1);
 
-            return aruco_module_->TrackMarker(data.GetTimestamp(), input_image, input_calibration, dictionary_,
-                                              parameter_, marker_size_);
+            return aruco_module_->TrackMarker(data.GetTimestamp(), input_image, input_calibration, dictionary_, marker_size_);
         }
 
         // crucial in this module component as all outputs are independent sources from the dataflows point of view, so if no input is available then all outputs must send invalid
@@ -83,8 +96,7 @@ namespace traact::component::aruco {
 
 
     private:
-        cv::Ptr<cv::aruco::Dictionary> dictionary_;
-        cv::Ptr<cv::aruco::DetectorParameters> parameter_;
+        ::aruco::Dictionary::DICT_TYPES dictionary_;
         double marker_size_;
 
 
