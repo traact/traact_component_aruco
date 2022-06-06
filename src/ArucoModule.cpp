@@ -9,28 +9,28 @@ namespace traact::component::aruco {
 
 
     void ArucoModule::AddOutput(int marker_id, ArucoOutputComponent *output_component) {
-        SPDLOG_INFO("ArucoModule AddOutput marker_id {0}", marker_id);
+        SPDLOG_DEBUG("ArucoModule AddOutput marker_id {0}", marker_id);
         output_components_.emplace(marker_id, output_component);
 
     }
 
     bool ArucoModule::init(Module::ComponentPtr module_component) {
-        SPDLOG_INFO("ArucoModule init from module_component");
+        SPDLOG_DEBUG("ArucoModule init from module_component");
         return Module::init(module_component);
     }
 
     bool ArucoModule::start(Module::ComponentPtr module_component) {
-        SPDLOG_INFO("ArucoModule start from module_component");
+        SPDLOG_DEBUG("ArucoModule start from module_component");
         return Module::start(module_component);
     }
 
     bool ArucoModule::stop(Module::ComponentPtr module_component) {
-        SPDLOG_INFO("ArucoModule stop from module_component");
+        SPDLOG_DEBUG("ArucoModule stop from module_component");
         return Module::stop(module_component);
     }
 
     bool ArucoModule::teardown(Module::ComponentPtr module_component) {
-        SPDLOG_INFO("ArucoModule teardown from module_component");
+        SPDLOG_DEBUG("ArucoModule teardown from module_component");
         return Module::teardown(module_component);
     }
 
@@ -59,7 +59,7 @@ namespace traact::component::aruco {
                                   const traact::vision::CameraCalibration &calibration,
                                   const ::aruco::Dictionary::DICT_TYPES &dictionary, double marker_size) {
 
-        SPDLOG_INFO("ArucoModule TrackMarker");
+        SPDLOG_TRACE("ArucoModule TrackMarker");
 
         cv::Mat cameraMatrix;
         cv::Mat distortionCoefficientsMatrix;
@@ -147,7 +147,7 @@ namespace traact::component::aruco {
     }
 
     void ArucoOutputComponent::SendMarker(spatial::Pose6DHeader::NativeType pose, TimestampType ts) {
-        SPDLOG_INFO("ArucoOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
+        SPDLOG_DEBUG("ArucoOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
         auto buffer = buffer_future.get();
@@ -163,7 +163,7 @@ namespace traact::component::aruco {
     }
 
     void ArucoOutputComponent::SendInvalid(TimestampType ts) {
-        SPDLOG_INFO("ArucoOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
+        SPDLOG_DEBUG("ArucoOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
         auto buffer = buffer_future.get();
@@ -175,7 +175,7 @@ namespace traact::component::aruco {
     }
 
     void ArucoDebugOutputComponent::Send(cv::Mat debug_image, TimestampType ts) {
-        SPDLOG_INFO("ArucoDebugOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
+        SPDLOG_DEBUG("ArucoDebugOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
         auto buffer = buffer_future.get();
