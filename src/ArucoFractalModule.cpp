@@ -102,7 +102,9 @@ namespace traact::component::aruco {
             debug_output_component_->Send(debug_image,ts);
         }
 
+
         if (found_marker) {
+
             spatial::Pose6DHeader::NativeType result;
             cv2traact(rvec, tvec, result);
             pose_output_component_->SendMarker(result, ts);
