@@ -32,11 +32,11 @@ namespace traact::component::aruco {
     }
 
 
-    std::string ArucoFractalComponent::GetModuleKey() {
+    std::string ArucoFractalComponent::getModuleKey() {
         return "aruco_fractal_global";
     }
 
-    Module::Ptr ArucoFractalComponent::InstantiateModule() {
+    Module::Ptr ArucoFractalComponent::instantiateModule() {
         return std::make_shared<ArucoFractalModule>();
     }
 
@@ -44,17 +44,17 @@ namespace traact::component::aruco {
                                    const ModuleType module_type) : ModuleComponent(name, traact_component_type,
                                                                                    module_type) {}
 
-    ArucoFractalPoseOutputComponent::ArucoFractalPoseOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
+    ArucoFractalPoseOutputComponent::ArucoFractalPoseOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
 
-    ArucoFractalPosition2dListOutputComponent::ArucoFractalPosition2dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
+    ArucoFractalPosition2dListOutputComponent::ArucoFractalPosition2dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
 
-    ArucoFractalPosition3dListOutputComponent::ArucoFractalPosition3dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
+    ArucoFractalPosition3dListOutputComponent::ArucoFractalPosition3dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
 
-    ArucoFractalDebugOutputComponent::ArucoFractalDebugOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {
+    ArucoFractalDebugOutputComponent::ArucoFractalDebugOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {
 
     }
 
-    bool ArucoFractalModule::TrackMarker(TimestampType ts, const cv::Mat &image,
+    bool ArucoFractalModule::TrackMarker(Timestamp ts, const cv::Mat &image,
                                   const traact::vision::CameraCalibration &calibration,
                                   const ::aruco::FractalMarkerSet::CONF_TYPES &marker_config, double marker_size) {
 
@@ -64,9 +64,11 @@ namespace traact::component::aruco {
         cv::Mat distortionCoefficientsMatrix;
         traact2cv(calibration, cameraMatrix, distortionCoefficientsMatrix);
 
+        auto dcm = distortionCoefficientsMatrix;
         // aruco can only handle distortion coefficients with 4-7 elements, opencv requires 4/5/8, azure kinect provides 8
         // for now only take 5 (3 radial, 2 tangential) parameters
-        auto dcm = distortionCoefficientsMatrix(cv::Range(0,5),cv::Range(0,1));
+        if(calibration.radial_distortion.size() > 3)
+          dcm = distortionCoefficientsMatrix(cv::Range(0,5),cv::Range(0,1));
 
         ::aruco::CameraParameters CamParam;
         CamParam.setParams(cameraMatrix, dcm, cv::Size(calibration.width, calibration.height));
@@ -165,13 +167,13 @@ namespace traact::component::aruco {
         debug_output_component_ = debug_output_component;
     }
 
-    void ArucoFractalModule::SendNoValidInput(TimestampType ts) {
+    void ArucoFractalModule::SendNoValidInput(Timestamp ts) {
         if (pose_output_component_) {
             pose_output_component_->SendInvalid(ts);
         }
     }
 
-    void ArucoFractalPoseOutputComponent::SendMarker(spatial::Pose6DHeader::NativeType pose, TimestampType ts) {
+    void ArucoFractalPoseOutputComponent::SendMarker(spatial::Pose6DHeader::NativeType pose, Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPoseOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -182,10 +184,10 @@ namespace traact::component::aruco {
         }
         auto& output = buffer->getOutput<spatial::Pose6DHeader::NativeType, spatial::Pose6DHeader>(0);
         output = pose;
-        buffer->Commit(true);
+        buffer->commit(true);
     }
 
-    void ArucoFractalPoseOutputComponent::SendInvalid(TimestampType ts) {
+    void ArucoFractalPoseOutputComponent::SendInvalid(Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPoseOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -194,10 +196,10 @@ namespace traact::component::aruco {
             SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
             return;
         }
-        buffer->Commit(false);
+        buffer->commit(false);
     }
 
-    void ArucoFractalPosition3dListOutputComponent::SendMarker(spatial::Position3DListHeader::NativeType points3d, TimestampType ts) {
+    void ArucoFractalPosition3dListOutputComponent::SendMarker(spatial::Position3DListHeader::NativeType points3d, Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPosition3dListOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -208,10 +210,10 @@ namespace traact::component::aruco {
         }
         auto& output = buffer->getOutput<spatial::Position3DListHeader::NativeType, spatial::Position3DListHeader>(0);
         output = points3d;
-        buffer->Commit(true);
+        buffer->commit(true);
     }
 
-    void ArucoFractalPosition3dListOutputComponent::SendInvalid(TimestampType ts) {
+    void ArucoFractalPosition3dListOutputComponent::SendInvalid(Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPosition3dListOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -220,10 +222,10 @@ namespace traact::component::aruco {
             SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
             return;
         }
-        buffer->Commit(false);
+        buffer->commit(false);
     }
 
-    void ArucoFractalPosition2dListOutputComponent::SendMarker(spatial::Position2DListHeader::NativeType points2d, TimestampType ts) {
+    void ArucoFractalPosition2dListOutputComponent::SendMarker(spatial::Position2DListHeader::NativeType points2d, Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPosition2dListOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -234,10 +236,10 @@ namespace traact::component::aruco {
         }
         auto& output = buffer->getOutput<spatial::Position2DListHeader::NativeType, spatial::Position2DListHeader>(0);
         output = points2d;
-        buffer->Commit(true);
+        buffer->commit(true);
     }
 
-    void ArucoFractalPosition2dListOutputComponent::SendInvalid(TimestampType ts) {
+    void ArucoFractalPosition2dListOutputComponent::SendInvalid(Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalPosition2dListOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -246,10 +248,10 @@ namespace traact::component::aruco {
             SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
             return;
         }
-        buffer->Commit(false);
+        buffer->commit(false);
     }
 
-    void ArucoFractalDebugOutputComponent::Send(cv::Mat debug_image, TimestampType ts) {
+    void ArucoFractalDebugOutputComponent::Send(cv::Mat debug_image, Timestamp ts) {
         SPDLOG_DEBUG("ArucoFractalDebugOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
@@ -260,7 +262,7 @@ namespace traact::component::aruco {
         }
         auto& output = buffer->getOutput<vision::ImageHeader::NativeType, vision::ImageHeader>(0);
         output.SetCpuMat(debug_image);
-        buffer->Commit(true);
+        buffer->commit(true);
     }
 
 

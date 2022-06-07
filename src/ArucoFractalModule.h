@@ -32,10 +32,10 @@ namespace traact::component::aruco {
         void AddOutput(ArucoFractalPosition2dListOutputComponent* output_component);
         void SetDebugOutput(ArucoFractalDebugOutputComponent* debug_output_component);
 
-        bool TrackMarker(TimestampType ts, const cv::Mat &image, const traact::vision::CameraCalibration &calibration,
+        bool TrackMarker(Timestamp ts, const cv::Mat &image, const traact::vision::CameraCalibration &calibration,
                          const ::aruco::FractalMarkerSet::CONF_TYPES &marker_config, double marker_size);
 
-        void SendNoValidInput(TimestampType ts);
+        void SendNoValidInput(Timestamp ts);
 
     private:
         ArucoFractalPoseOutputComponent* pose_output_component_{nullptr};
@@ -52,8 +52,8 @@ namespace traact::component::aruco {
         ArucoFractalComponent(const std::string &name, const ComponentType traact_component_type,
                        const ModuleType module_type);
 
-        std::string GetModuleKey() override;
-        Module::Ptr InstantiateModule() override;
+        std::string getModuleKey() override;
+        Module::Ptr instantiateModule() override;
 
     protected:
         std::shared_ptr<ArucoFractalModule> aruco_module_;
@@ -65,42 +65,42 @@ namespace traact::component::aruco {
     public:
         explicit ArucoFractalPoseOutputComponent(const std::string &name);
 
-        void SendMarker(spatial::Pose6DHeader::NativeType pose, TimestampType ts);
+        void SendMarker(spatial::Pose6DHeader::NativeType pose, Timestamp ts);
 
-        void SendInvalid(TimestampType ts);
+        void SendInvalid(Timestamp ts);
 
-    RTTR_ENABLE(ArucoFractalComponent)
+    RTTR_ENABLE(ModuleComponent, ArucoFractalComponent)
     };
 
     class ArucoFractalPosition3dListOutputComponent : public ArucoFractalComponent {
     public:
         explicit ArucoFractalPosition3dListOutputComponent(const std::string &name);
 
-        void SendMarker(spatial::Position3DListHeader::NativeType pose, TimestampType ts);
+        void SendMarker(spatial::Position3DListHeader::NativeType pose, Timestamp ts);
 
-        void SendInvalid(TimestampType ts);
+        void SendInvalid(Timestamp ts);
 
-    RTTR_ENABLE(ArucoFractalComponent)
+        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
     };
 
     class ArucoFractalPosition2dListOutputComponent : public ArucoFractalComponent {
     public:
         explicit ArucoFractalPosition2dListOutputComponent(const std::string &name);
 
-        void SendMarker(spatial::Position2DListHeader::NativeType pose, TimestampType ts);
+        void SendMarker(spatial::Position2DListHeader::NativeType pose, Timestamp ts);
 
-        void SendInvalid(TimestampType ts);
+        void SendInvalid(Timestamp ts);
 
-    RTTR_ENABLE(ArucoFractalComponent)
+        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
     };
 
     class ArucoFractalDebugOutputComponent : public ArucoFractalComponent {
     public:
         explicit ArucoFractalDebugOutputComponent(const std::string &name);
 
-        void Send(cv::Mat debug_image, TimestampType ts);
+        void Send(cv::Mat debug_image, Timestamp ts);
 
-    RTTR_ENABLE(ArucoFractalComponent)
+        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
     };
 
 

@@ -7,13 +7,13 @@ namespace traact::component::aruco {
     class ArucoFractalInput : public ArucoFractalComponent {
     public:
         ArucoFractalInput(const std::string &name)
-                : ArucoFractalComponent(name, ComponentType::SyncSink, ModuleType::Global) {}
+                : ArucoFractalComponent(name, ComponentType::SYNC_SINK, ModuleType::GLOBAL) {}
 
         traact::pattern::Pattern::Ptr GetPattern() const {
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoFractalInput", Concurrency::serial);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalInput", Concurrency::SERIAL);
 
             pattern->addConsumerPort("input", ImageHeader::MetaType);
             pattern->addConsumerPort("input_calibration", CameraCalibrationHeader::MetaType);
@@ -44,14 +44,14 @@ namespace traact::component::aruco {
 
         bool processTimePoint(traact::DefaultComponentBuffer &data) override {
             using namespace traact::vision;
-            const auto& input_image = data.getInput<ImageHeader::NativeType, ImageHeader>(0).GetCpuMat();
-            const auto& input_calibration = data.getInput<CameraCalibrationHeader::NativeType, CameraCalibrationHeader>(1);
+            const auto& input_image = data.getInput<ImageHeader>(0).GetCpuMat();
+            const auto& input_calibration = data.getInput<CameraCalibrationHeader>(1);
 
-            return aruco_module_->TrackMarker(data.GetTimestamp(), input_image, input_calibration, marker_config_, marker_size_);
+            return aruco_module_->TrackMarker(data.getTimestamp(), input_image, input_calibration, marker_config_, marker_size_);
         }
 
         // crucial in this module component as all outputs are independent sources from the dataflows point of view, so if no input is available then all outputs must send invalid
-        void invalidTimePoint(TimestampType ts, std::size_t mea_idx) override {
+        void invalidTimePoint(Timestamp ts, std::size_t mea_idx) override {
             aruco_module_->SendNoValidInput(ts);
         }
 
@@ -60,7 +60,7 @@ namespace traact::component::aruco {
         ::aruco::FractalMarkerSet::CONF_TYPES marker_config_;
         double marker_size_;
 
-    RTTR_ENABLE(ArucoFractalComponent)
+    RTTR_ENABLE(Component, ModuleComponent,ArucoFractalComponent)
 
     };
 

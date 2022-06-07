@@ -12,7 +12,7 @@ namespace traact::component::aruco {
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoFractalDebugOutput", Concurrency::serial);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalDebugOutput", Concurrency::SERIAL);
 
             pattern->addProducerPort("output", vision::ImageHeader::MetaType);
 

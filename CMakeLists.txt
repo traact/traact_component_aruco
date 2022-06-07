@@ -21,21 +21,6 @@ conan_basic_setup(TARGETS)
 
 add_compile_options(-fno-gnu-unique)
 
-if (CMAKE_BUILD_TYPE EQUAL "DEBUG")
-    add_definitions(-DTBB_USE_DEBUG=1)
-endif ()
-
-add_definitions(-DTBB_PREVIEW_FLOW_GRAPH_FEATURES=1)
-add_definitions(-DTBB_PREVIEW_FLOW_GRAPH_NODES=1)
-
-# conan workspace and cmake don't work that well together, did not manage to get the build dir into the includes: 
-# force generated file into source include dir 
-# only one export file could be generated
-# use files and defines instead
-#set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-#set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-#generate_export_header(${CONAN_PACKAGE_NAME} EXPORT_FILE_NAME "../../include/traact/${CONAN_PACKAGE_NAME}_export.h")
-
 if (UNIX)
     if (APPLE)
         MESSAGE(STATUS "Building for Macos.")
@@ -57,8 +42,10 @@ endif ()
 add_library(${CONAN_PACKAGE_NAME} SHARED
         src/ArucoModule.h
         src/ArucoModule.cpp
-
-        src/ArucoInput.cpp src/ArucoOutput.cpp src/ArucoDebugOutput.cpp src/ArucoDebugOutput.h
+        src/ArucoInput.cpp
+        src/ArucoOutput.cpp
+        src/ArucoDebugOutput.cpp
+        src/ArucoDebugOutput.h
         src/ArucoFractalModule.cpp
         src/ArucoFractalModule.h
         src/ArucoFractalDebugOutput.cpp

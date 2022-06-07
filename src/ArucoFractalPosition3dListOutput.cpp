@@ -12,7 +12,7 @@ namespace traact::component::aruco {
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoFractalPosition3dListOutput", Concurrency::serial);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalPosition3dListOutput", Concurrency::SERIAL);
 
             pattern->addProducerPort("outputPoints3d", spatial::Position3DListHeader::MetaType);
 
@@ -25,7 +25,7 @@ namespace traact::component::aruco {
             return true;
         }
 
-    RTTR_ENABLE(ArucoFractalPoseOutputComponent)
+        RTTR_ENABLE(Component, ModuleComponent,ArucoFractalPoseOutputComponent)
 
     };
 
