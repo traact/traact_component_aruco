@@ -3,41 +3,36 @@
 
 namespace traact::component::aruco {
 
+class ArucoOutput : public ArucoOutputComponent {
+ public:
+    explicit ArucoOutput(const std::string &name)
+        : ArucoOutputComponent(name) {}
 
+    traact::pattern::Pattern::Ptr GetPattern() const override {
+        using namespace traact::vision;
+        traact::pattern::Pattern::Ptr
+            pattern =
+            std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::SERIAL);
 
-    class ArucoOutput : public ArucoOutputComponent {
-    public:
-        explicit ArucoOutput(const std::string &name)
-                : ArucoOutputComponent(name) {}
+        pattern->addProducerPort("output", spatial::Pose6DHeader::MetaType);
+        pattern->addParameter("marker_id", 0);
 
-        traact::pattern::Pattern::Ptr GetPattern() const override{
-            using namespace traact::vision;
-            traact::pattern::Pattern::Ptr
-                    pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::serial);
+        return pattern;
+    }
 
-            pattern->addProducerPort("output", spatial::Pose6DHeader::MetaType);
-            pattern->addParameter("marker_id", 0);
+    bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
+        aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
+        pattern::setValueFromParameter(parameter, "marker_id", marker_id_, 0);
+        aruco_module_->AddOutput(marker_id_, this);
+        return true;
+    }
 
-            return pattern;
-        }
+ private:
+    int marker_id_{0};
 
-        bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
-            aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-            pattern::setValueFromParameter(parameter, "marker_id", marker_id_, 0);
-            aruco_module_->AddOutput(marker_id_, this);
-            return true;
-        }
+ RTTR_ENABLE(Component, ModuleComponent, ArucoComponent)
 
-    private:
-        int marker_id_{0};
-
-
-    RTTR_ENABLE(ArucoOutputComponent)
-
-    };
-
-
+};
 
 }
 

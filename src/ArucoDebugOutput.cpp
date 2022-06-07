@@ -3,38 +3,33 @@
 
 namespace traact::component::aruco {
 
-    class ArucoDebugOutput : public ArucoDebugOutputComponent {
-    public:
-        explicit ArucoDebugOutput(const std::string &name)
-                : ArucoDebugOutputComponent(name) {}
+class ArucoDebugOutput : public ArucoDebugOutputComponent {
+ public:
+    explicit ArucoDebugOutput(const std::string &name)
+        : ArucoDebugOutputComponent(name) {}
 
-        traact::pattern::Pattern::Ptr GetPattern() const override{
-            using namespace traact::vision;
-            traact::pattern::Pattern::Ptr
-                    pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoDebugOutput", Concurrency::serial);
+    traact::pattern::Pattern::Ptr GetPattern() const override {
+        using namespace traact::vision;
+        traact::pattern::Pattern::Ptr
+            pattern =
+            std::make_shared<traact::pattern::Pattern>("ArucoDebugOutput", Concurrency::SERIAL);
 
-            pattern->addProducerPort("output", vision::ImageHeader::MetaType);
+        pattern->addProducerPort("output", vision::ImageHeader::MetaType);
 
+        return pattern;
+    }
 
-            return pattern;
-        }
+    bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
+        aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
+        aruco_module_->SetDebugOutput(this);
+        return true;
+    }
 
-        bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
-            aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-            aruco_module_->SetDebugOutput( this);
-            return true;
-        }
+ private:
 
-    private:
+ RTTR_ENABLE(Component, ModuleComponent, ArucoComponent)
 
-
-
-    RTTR_ENABLE(ArucoDebugOutputComponent)
-
-    };
-
-
+};
 
 }
 

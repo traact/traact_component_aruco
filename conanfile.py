@@ -5,8 +5,8 @@ from conans import ConanFile, CMake, tools
 
 class Traact(ConanFile):
     name = "traact_component_aruco"
-    version = "0.0.1"
-    
+    version = "0.1.0"
+
     description = "Basic components for spatial and vision datatypes"
     url = ""
     license = ""
@@ -17,8 +17,8 @@ class Traact(ConanFile):
     generators = "cmake"
     settings = "os", "compiler", "build_type", "arch"
     compiler = "cppstd"
-    keep_imports=True
-    
+    keep_imports = True
+
     options = {
         "shared": [True, False],
         "with_tests": [True, False]
@@ -29,17 +29,14 @@ class Traact(ConanFile):
         "with_tests": False,
     }
 
-    exports_sources = "include/*", "src/*", "CMakeLists.txt"
+    exports_sources = "src/*", "CMakeLists.txt"
 
     def requirements(self):
         if self.options.with_tests:
             self.requires("gtest/1.10.0")
-        
-        self.requires("traact_spatial/%s@camposs/stable" % self.version)
-        self.requires("traact_vision/%s@camposs/stable" % self.version)
+        self.requires("traact_spatial/[>=0.1.0]@camposs/stable")
+        self.requires("traact_vision/[>=0.1.0]@camposs/stable")
         self.requires("aruco/3.1.15@camposs/stable")
-
-
 
     def _configure_cmake(self):
         cmake = CMake(self)
@@ -70,4 +67,4 @@ class Traact(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = [self.name]        
+        self.cpp_info.libs = [self.name]
