@@ -46,6 +46,10 @@ namespace traact::component::aruco {
 
     ArucoFractalPoseOutputComponent::ArucoFractalPoseOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
 
+    ArucoFractalPosition2dListOutputComponent::ArucoFractalPosition2dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
+
+    ArucoFractalPosition3dListOutputComponent::ArucoFractalPosition3dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {}
+
     ArucoFractalDebugOutputComponent::ArucoFractalDebugOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::SyncSource, ModuleType::Global) {
 
     }
@@ -81,11 +85,21 @@ namespace traact::component::aruco {
 
         FractalDetector.detect(image);
         cv::Mat rvec, tvec;
+        std::vector<cv::Point3f> points3d;
+        std::vector<cv::Point2f> points2d;
         bool found_marker{false};
 
         if (FractalDetector.poseEstimation()) {
-            rvec = FractalDetector.getRvec();
-            tvec = FractalDetector.getTvec();
+            if (pose_output_component_) {
+                rvec = FractalDetector.getRvec();
+                tvec = FractalDetector.getTvec();
+            }
+            if (position2dlist_output_component_) {
+                points2d = FractalDetector.getPoints2d(image);
+            }
+            if (position3dlist_output_component_) {
+                points3d = FractalDetector.getPoints3d(image);
+            }
             found_marker = true;
         }
 
@@ -93,7 +107,6 @@ namespace traact::component::aruco {
         if(debug_output_component_){
             cv::Mat debug_image;
             cv::cvtColor(image, debug_image, cv::COLOR_GRAY2RGB);
-
             if (found_marker) {
                 FractalDetector.draw3d(debug_image);
             } else {
@@ -104,13 +117,44 @@ namespace traact::component::aruco {
 
 
         if (found_marker) {
+            if (pose_output_component_) {
+                spatial::Pose6DHeader::NativeType result;
+                cv2traact(rvec, tvec, result);
+                pose_output_component_->SendMarker(result, ts);
+            }
+            if (position3dlist_output_component_) {
+                spatial::Position3DListHeader::NativeType result;
+                // should probably be in cv2traact
+                for (auto& p: points3d) {
+                    spatial::Position3DListHeader::NativeType::value_type v;
+                    v(0) = p.x;
+                    v(1) = p.y;
+                    v(2) = p.z;
+                    result.push_back(v);
+                }
+                position3dlist_output_component_->SendMarker(result, ts);
+            }
+            if (position2dlist_output_component_) {
+                spatial::Position2DListHeader::NativeType result;
+                // should probably be in cv2traact
+                for (auto& p: points2d) {
+                    spatial::Position2DListHeader::NativeType::value_type v;
+                    v(0) = p.x;
+                    v(1) = p.y;
+                    result.push_back(v);
+                }
+                position2dlist_output_component_->SendMarker(result, ts);
+            }
 
-            spatial::Pose6DHeader::NativeType result;
-            cv2traact(rvec, tvec, result);
-            pose_output_component_->SendMarker(result, ts);
         } else {
             if (pose_output_component_) {
                 pose_output_component_->SendInvalid(ts);
+            }
+            if (position3dlist_output_component_) {
+                position3dlist_output_component_->SendInvalid(ts);
+            }
+            if (position2dlist_output_component_) {
+                position2dlist_output_component_->SendInvalid(ts);
             }
         }
 
@@ -128,7 +172,7 @@ namespace traact::component::aruco {
     }
 
     void ArucoFractalPoseOutputComponent::SendMarker(spatial::Pose6DHeader::NativeType pose, TimestampType ts) {
-        SPDLOG_DEBUG("ArucoFractalOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
+        SPDLOG_DEBUG("ArucoFractalPoseOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
         auto buffer = buffer_future.get();
@@ -142,7 +186,59 @@ namespace traact::component::aruco {
     }
 
     void ArucoFractalPoseOutputComponent::SendInvalid(TimestampType ts) {
-        SPDLOG_DEBUG("ArucoFractalOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
+        SPDLOG_DEBUG("ArucoFractalPoseOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
+        auto buffer_future = request_callback_(ts);
+        buffer_future.wait();
+        auto buffer = buffer_future.get();
+        if (buffer == nullptr){
+            SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
+            return;
+        }
+        buffer->Commit(false);
+    }
+
+    void ArucoFractalPosition3dListOutputComponent::SendMarker(spatial::Position3DListHeader::NativeType points3d, TimestampType ts) {
+        SPDLOG_DEBUG("ArucoFractalPosition3dListOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
+        auto buffer_future = request_callback_(ts);
+        buffer_future.wait();
+        auto buffer = buffer_future.get();
+        if (buffer == nullptr){
+            SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
+            return;
+        }
+        auto& output = buffer->getOutput<spatial::Position3DListHeader::NativeType, spatial::Position3DListHeader>(0);
+        output = points3d;
+        buffer->Commit(true);
+    }
+
+    void ArucoFractalPosition3dListOutputComponent::SendInvalid(TimestampType ts) {
+        SPDLOG_DEBUG("ArucoFractalPosition3dListOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
+        auto buffer_future = request_callback_(ts);
+        buffer_future.wait();
+        auto buffer = buffer_future.get();
+        if (buffer == nullptr){
+            SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
+            return;
+        }
+        buffer->Commit(false);
+    }
+
+    void ArucoFractalPosition2dListOutputComponent::SendMarker(spatial::Position2DListHeader::NativeType points2d, TimestampType ts) {
+        SPDLOG_DEBUG("ArucoFractalPosition2dListOutputComponent Send {0} {1}",getName(), ts.time_since_epoch().count());
+        auto buffer_future = request_callback_(ts);
+        buffer_future.wait();
+        auto buffer = buffer_future.get();
+        if (buffer == nullptr){
+            SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
+            return;
+        }
+        auto& output = buffer->getOutput<spatial::Position2DListHeader::NativeType, spatial::Position2DListHeader>(0);
+        output = points2d;
+        buffer->Commit(true);
+    }
+
+    void ArucoFractalPosition2dListOutputComponent::SendInvalid(TimestampType ts) {
+        SPDLOG_DEBUG("ArucoFractalPosition2dListOutputComponent Invalid {0} {1}",getName(), ts.time_since_epoch().count());
         auto buffer_future = request_callback_(ts);
         buffer_future.wait();
         auto buffer = buffer_future.get();

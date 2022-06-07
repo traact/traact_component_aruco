@@ -68,6 +68,8 @@ add_library(${CONAN_PACKAGE_NAME} SHARED
         src/ArucoFractalModule.cpp
         src/ArucoFractalInput.cpp
         src/ArucoFractalPoseOutput.cpp
+        src/ArucoFractalPosition3dListOutput.cpp
+        src/ArucoFractalPosition2dListOutput.cpp
         src/ArucoFractalDebugOutput.cpp
         src/ArucoFractalDebugOutput.h
         )
