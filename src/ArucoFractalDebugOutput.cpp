@@ -1,39 +1,34 @@
-#include "ArucoModule.h"
+#include "ArucoFractalModule.h"
 #include <rttr/registration>
 
 namespace traact::component::aruco {
 
-
-
-    class ArucoOutput : public ArucoOutputComponent {
+    class ArucoFractalDebugOutput : public ArucoFractalDebugOutputComponent {
     public:
-        explicit ArucoOutput(const std::string &name)
-                : ArucoOutputComponent(name) {}
+        explicit ArucoFractalDebugOutput(const std::string &name)
+                : ArucoFractalDebugOutputComponent(name) {}
 
         traact::pattern::Pattern::Ptr GetPattern() const override{
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::serial);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalDebugOutput", Concurrency::serial);
 
-            pattern->addProducerPort("output", spatial::Pose6DHeader::MetaType);
-            pattern->addParameter("marker_id", 0);
+            pattern->addProducerPort("output", vision::ImageHeader::MetaType);
+
 
             return pattern;
         }
 
         bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
-            aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-            pattern::setValueFromParameter(parameter, "marker_id", marker_id_, 0);
-            aruco_module_->AddOutput(marker_id_, this);
+            aruco_module_ = std::dynamic_pointer_cast<ArucoFractalModule>(module_);
+            aruco_module_->SetDebugOutput( this);
             return true;
         }
 
     private:
-        int marker_id_{0};
 
-
-    RTTR_ENABLE(ArucoOutputComponent)
+    RTTR_ENABLE(ArucoFractalDebugOutputComponent)
 
     };
 
@@ -48,5 +43,5 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
 {
 
     using namespace rttr;
-    registration::class_<traact::component::aruco::ArucoOutput>("ArucoOutput").constructor<std::string>()();
+    registration::class_<traact::component::aruco::ArucoFractalDebugOutput>("ArucoFractalDebugOutput").constructor<std::string>()();
 }

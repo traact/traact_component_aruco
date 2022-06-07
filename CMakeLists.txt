@@ -60,8 +60,17 @@ endif()
 add_library(${CONAN_PACKAGE_NAME} SHARED
         src/ArucoModule.h
         src/ArucoModule.cpp
-
-        src/ArucoInput.cpp src/ArucoOutput.cpp src/ArucoDebugOutput.cpp src/ArucoDebugOutput.h)
+        src/ArucoInput.cpp
+        src/ArucoOutput.cpp
+        src/ArucoDebugOutput.cpp
+        src/ArucoDebugOutput.h
+        src/ArucoFractalModule.h
+        src/ArucoFractalModule.cpp
+        src/ArucoFractalInput.cpp
+        src/ArucoFractalPoseOutput.cpp
+        src/ArucoFractalDebugOutput.cpp
+        src/ArucoFractalDebugOutput.h
+        )
 
 conan_target_link_libraries(${CONAN_PACKAGE_NAME} CONAN_PKG::aruco)
 

@@ -29,53 +29,47 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **/
 
-#include "ArucoModule.h"
+#include "ArucoFractalModule.h"
 #include <rttr/registration>
 #include <traact/pattern/Pattern.h>
+
 namespace traact::component::aruco {
 
-    class ArucoInput : public ArucoComponent {
+    class ArucoFractalInput : public ArucoFractalComponent {
     public:
-        ArucoInput(const std::string &name)
-                : ArucoComponent(name, ComponentType::SyncSink, ModuleType::Global) {}
+        ArucoFractalInput(const std::string &name)
+                : ArucoFractalComponent(name, ComponentType::SyncSink, ModuleType::Global) {}
 
         traact::pattern::Pattern::Ptr GetPattern() const {
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoInput", Concurrency::serial);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalInput", Concurrency::serial);
 
             pattern->addConsumerPort("input", ImageHeader::MetaType);
             pattern->addConsumerPort("input_calibration", CameraCalibrationHeader::MetaType);
-            pattern->addParameter("Dictionary","ARUCO_MIP_36h12",
-                                  {"ARUCO_MIP_36h12", "ARUCO", "ARUCO_MIP_25h7", "ARUCO_MIP_16h3",
-                                   "ARTAG", "ARTOOLKITPLUS", "ARTOOLKITPLUSBCH",
-                                   "TAG16h5", "TAG25h7", "TAG25h9", "TAG36h11", "TAG36h10"})
+            pattern->addParameter("MarkerConfig","FRACTAL_2L_6",
+                                  {"FRACTAL_2L_6", "FRACTAL_3L_6", "FRACTAL_4L_6", "FRACTAL_5L_6",})
             .addParameter("MarkerSize", 0.08);
             return pattern;
         }
 
         bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
-            aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-            ::aruco::Dictionary::DICT_TYPES dict;
-            pattern::setValueFromParameter(parameter,"Dictionary", dict, "ARUCO_MIP_36h12",
+            aruco_module_ = std::dynamic_pointer_cast<ArucoFractalModule>(module_);
+
+            ::aruco::FractalMarkerSet::CONF_TYPES config;
+            pattern::setValueFromParameter(parameter,"MarkerConfig", config, "FRACTAL_2L_6",
                                            {
-                                                {"ARUCO_MIP_36h12", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_36h12},
-                                                {"ARUCO", ::aruco::Dictionary::DICT_TYPES::ARUCO},
-                                                {"ARUCO_MIP_25h7", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_25h7},
-                                                {"ARUCO_MIP_16h3", ::aruco::Dictionary::DICT_TYPES::ARUCO_MIP_16h3},
-                                                {"ARTAG", ::aruco::Dictionary::DICT_TYPES::ARTAG},
-                                                {"ARTOOLKITPLUS", ::aruco::Dictionary::DICT_TYPES::ARTOOLKITPLUS},
-                                                {"ARTOOLKITPLUSBCH", ::aruco::Dictionary::DICT_TYPES::ARTOOLKITPLUSBCH},
-                                                {"TAG16h5", ::aruco::Dictionary::DICT_TYPES::TAG16h5},
-                                                {"TAG25h7", ::aruco::Dictionary::DICT_TYPES::TAG25h7},
-                                                {"TAG25h9", ::aruco::Dictionary::DICT_TYPES::TAG25h9},
-                                                {"TAG36h11", ::aruco::Dictionary::DICT_TYPES::TAG36h11},
-                                                {"TAG36h10", ::aruco::Dictionary::DICT_TYPES::TAG36h10}
+                                                   {"FRACTAL_2L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_2L_6},
+                                                   {"FRACTAL_3L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_3L_6},
+                                                   {"FRACTAL_4L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_4L_6},
+                                                   {"FRACTAL_5L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_5L_6}
                                            });
+
+
             pattern::setValueFromParameter(parameter,"MarkerSize",marker_size_, 0.10);
 
-            dictionary_ = dict;
+            marker_config_ = config;
             return true;
         }
 
@@ -84,7 +78,7 @@ namespace traact::component::aruco {
             const auto& input_image = data.getInput<ImageHeader::NativeType, ImageHeader>(0).GetCpuMat();
             const auto& input_calibration = data.getInput<CameraCalibrationHeader::NativeType, CameraCalibrationHeader>(1);
 
-            return aruco_module_->TrackMarker(data.GetTimestamp(), input_image, input_calibration, dictionary_, marker_size_);
+            return aruco_module_->TrackMarker(data.GetTimestamp(), input_image, input_calibration, marker_config_, marker_size_);
         }
 
         // crucial in this module component as all outputs are independent sources from the dataflows point of view, so if no input is available then all outputs must send invalid
@@ -94,15 +88,12 @@ namespace traact::component::aruco {
 
 
     private:
-        ::aruco::Dictionary::DICT_TYPES dictionary_;
+        ::aruco::FractalMarkerSet::CONF_TYPES marker_config_;
         double marker_size_;
 
-
-    RTTR_ENABLE(ArucoComponent)
+    RTTR_ENABLE(ArucoFractalComponent)
 
     };
-
-
 
 }
 
@@ -113,5 +104,5 @@ RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
 {
 
     using namespace rttr;
-    registration::class_<traact::component::aruco::ArucoInput>("ArucoInput").constructor<std::string>()();
+    registration::class_<traact::component::aruco::ArucoFractalInput>("ArucoFractalInput").constructor<std::string>()();
 }

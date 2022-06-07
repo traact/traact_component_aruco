@@ -3,8 +3,6 @@
 
 namespace traact::component::aruco {
 
-
-
     class ArucoDebugOutput : public ArucoDebugOutputComponent {
     public:
         explicit ArucoDebugOutput(const std::string &name)
@@ -32,7 +30,7 @@ namespace traact::component::aruco {
 
 
 
-    RTTR_ENABLE(Component, ModuleComponent, ArucoComponent)
+    RTTR_ENABLE(ArucoDebugOutputComponent)
 
     };
 

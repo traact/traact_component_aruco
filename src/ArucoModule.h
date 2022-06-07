@@ -34,7 +34,6 @@ namespace traact::component::aruco {
         std::map<int, ArucoOutputComponent*> output_components_;
         ArucoDebugOutputComponent* debug_output_component_{nullptr};
 
-
     RTTR_ENABLE(Module)
     };
 
@@ -49,7 +48,6 @@ namespace traact::component::aruco {
     protected:
         std::shared_ptr<ArucoModule> aruco_module_;
 
-
     RTTR_ENABLE(ModuleComponent)
     };
 
@@ -61,9 +59,7 @@ namespace traact::component::aruco {
 
         void SendInvalid(TimestampType ts);
 
-
-
-    RTTR_ENABLE(ModuleComponent)
+    RTTR_ENABLE(ArucoComponent)
     };
 
     class ArucoDebugOutputComponent : public ArucoComponent {
@@ -72,12 +68,7 @@ namespace traact::component::aruco {
 
         void Send(cv::Mat debug_image, TimestampType ts);
 
-
-
-
-
-
-    RTTR_ENABLE(ModuleComponent)
+    RTTR_ENABLE(ArucoComponent)
     };
 
 
