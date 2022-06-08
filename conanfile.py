@@ -7,10 +7,10 @@ class Traact(ConanFile):
     name = "traact_component_aruco"
     version = "0.1.0"
 
-    description = "Basic components for spatial and vision datatypes"
-    url = ""
-    license = ""
-    author = ""
+    description = "Vision components using the aruco library"
+    url = "https://github.com/traact/traact_component_aruco.git"
+    license = "MIT"
+    author = "Frieder Pankratz"
 
     short_paths = True
 
@@ -33,9 +33,9 @@ class Traact(ConanFile):
 
     def requirements(self):
         if self.options.with_tests:
-            self.requires("gtest/1.10.0")
-        self.requires("traact_spatial/[>=0.1.0]@camposs/stable")
-        self.requires("traact_vision/[>=0.1.0]@camposs/stable")
+            self.requires("gtest/[>=1.10.0]")
+        self.requires("traact_spatial/[>=0.1.0]@traact/latest")
+        self.requires("traact_vision/[>=0.1.0]@traact/latest")
         self.requires("aruco/3.1.15@camposs/stable")
 
     def _configure_cmake(self):
