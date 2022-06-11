@@ -8,11 +8,11 @@ class ArucoOutput : public ArucoOutputComponent {
     explicit ArucoOutput(const std::string &name)
         : ArucoOutputComponent(name) {}
 
-    traact::pattern::Pattern::Ptr GetPattern() const override {
+    static traact::pattern::Pattern::Ptr GetPattern() {
         using namespace traact::vision;
         traact::pattern::Pattern::Ptr
             pattern =
-            std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::SERIAL);
+            std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::SERIAL, ComponentType::INTERNAL_SYNC_SOURCE);
 
         pattern->addProducerPort("output", spatial::Pose6DHeader::MetaType);
         pattern->addParameter("marker_id", 0);
@@ -30,18 +30,14 @@ class ArucoOutput : public ArucoOutputComponent {
  private:
     int marker_id_{0};
 
- RTTR_ENABLE(Component, ModuleComponent, ArucoComponent)
+
 
 };
 
+CREATE_TRAACT_COMPONENT_FACTORY(ArucoOutput)
+
 }
 
-
-// It is not possible to place the macro multiple times in one cpp file. When you compile your plugin with the gcc toolchain,
-// make sure you use the compiler option: -fno-gnu-unique. otherwise the unregistration will not work properly.
-RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
-{
-
-    using namespace rttr;
-    registration::class_<traact::component::aruco::ArucoOutput>("ArucoOutput").constructor<std::string>()();
-}
+BEGIN_TRAACT_PLUGIN_REGISTRATION
+    REGISTER_DEFAULT_COMPONENT(traact::component::aruco::ArucoOutput)
+END_TRAACT_PLUGIN_REGISTRATION

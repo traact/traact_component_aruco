@@ -39,7 +39,7 @@ Module::Ptr ArucoComponent::instantiateModule() {
 }
 
 ArucoComponent::ArucoComponent(const std::string &name, const ComponentType traact_component_type,
-                               const ModuleType module_type) : ModuleComponent(name, traact_component_type,
+                               const ModuleType module_type) : ModuleComponent(name,
                                                                                module_type) {}
 
 ArucoOutputComponent::ArucoOutputComponent(const std::string &name) : ArucoComponent(name,
@@ -160,8 +160,8 @@ void ArucoDebugOutputComponent::Send(cv::Mat debug_image, Timestamp ts) {
         SPDLOG_ERROR("Could not get source buffer for ts {0}", ts.time_since_epoch().count());
         return;
     }
-    auto &output = buffer->getOutput<vision::ImageHeader::NativeType, vision::ImageHeader>(0);
-    output.SetCpuMat(debug_image);
+    auto &output = buffer->getOutput<vision::ImageHeader>(0);
+    output.update(debug_image);
     buffer->commit(true);
 }
 

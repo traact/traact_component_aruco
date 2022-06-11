@@ -1,24 +1,26 @@
 /** Copyright (C) 2022  Frieder Pankratz <frieder.pankratz@gmail.com> **/
 
 #include "ArucoModule.h"
-#include <rttr/registration>
-#include <traact/pattern/Pattern.h>
+
+
 namespace traact::component::aruco {
 
 class ArucoInput : public ArucoComponent {
  public:
+    using InPortImage = buffer::PortConfig<vision::ImageHeader, 0>;
+    using InPortCalibration = buffer::PortConfig<vision::CameraCalibrationHeader, 1>;
     ArucoInput(const std::string &name)
         : ArucoComponent(name, ComponentType::SYNC_SINK, ModuleType::GLOBAL) {}
 
-    traact::pattern::Pattern::Ptr GetPattern() const {
+    static traact::pattern::Pattern::Ptr GetPattern() {
         using namespace traact::vision;
         traact::pattern::Pattern::Ptr
             pattern =
-            std::make_shared<traact::pattern::Pattern>("ArucoInput", Concurrency::SERIAL);
+            std::make_shared<traact::pattern::Pattern>("ArucoInput", Concurrency::SERIAL, ComponentType::SYNC_SINK);
 
-        pattern->addConsumerPort("input", ImageHeader::MetaType);
-        pattern->addConsumerPort("input_calibration", CameraCalibrationHeader::MetaType);
-        pattern->addParameter("Dictionary", "DICT_4X4_50", {"DICT_4X4_50", "DICT_5X5_50", "DICT_6X6_50"})
+        pattern->addConsumerPort<InPortImage>("input")
+            .addConsumerPort<InPortCalibration>("input_calibration")
+            .addParameter("Dictionary", "DICT_4X4_50", {"DICT_4X4_50", "DICT_5X5_50", "DICT_6X6_50"})
             .addParameter("MarkerSize", 0.08);
         return pattern;
     }
@@ -42,18 +44,18 @@ class ArucoInput : public ArucoComponent {
         return true;
     }
 
-    bool processTimePoint(traact::DefaultComponentBuffer &data) override {
+    bool processTimePoint(traact::buffer::ComponentBuffer &data) override {
         using namespace traact::vision;
-        const auto &input_image = data.getInput<ImageHeader>(0).GetCpuMat();
-        const auto &input_calibration = data.getInput<CameraCalibrationHeader>(1);
+        const auto &input_image = data.getInput<InPortImage>().getImage();
+        const auto &input_calibration = data.getInput<InPortCalibration>();
 
         return aruco_module_->TrackMarker(data.getTimestamp(), input_image, input_calibration, dictionary_,
                                           parameter_, marker_size_);
     }
 
     // crucial in this module component as all outputs are independent sources from the dataflows point of view, so if no input is available then all outputs must send invalid
-    void invalidTimePoint(Timestamp ts, size_t mea_idx) override {
-        aruco_module_->SendNoValidInput(ts);
+    bool processTimePointWithInvalid(buffer::ComponentBuffer &data) override {
+        aruco_module_->SendNoValidInput(data.getTimestamp());
     }
 
  private:
@@ -61,18 +63,13 @@ class ArucoInput : public ArucoComponent {
     cv::Ptr<cv::aruco::DetectorParameters> parameter_;
     double marker_size_;
 
- RTTR_ENABLE(Component, ModuleComponent, ArucoComponent)
-
 };
 
+
+CREATE_TRAACT_COMPONENT_FACTORY(ArucoInput)
+
 }
 
-
-// It is not possible to place the macro multiple times in one cpp file. When you compile your plugin with the gcc toolchain,
-// make sure you use the compiler option: -fno-gnu-unique. otherwise the unregistration will not work properly.
-RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
-{
-
-    using namespace rttr;
-    registration::class_<traact::component::aruco::ArucoInput>("ArucoInput").constructor<std::string>()();
-}
+BEGIN_TRAACT_PLUGIN_REGISTRATION
+    REGISTER_DEFAULT_COMPONENT(traact::component::aruco::ArucoInput)
+END_TRAACT_PLUGIN_REGISTRATION

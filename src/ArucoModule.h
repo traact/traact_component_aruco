@@ -35,7 +35,6 @@ class ArucoModule : public Module {
     std::map<int, ArucoOutputComponent *> output_components_;
     ArucoDebugOutputComponent *debug_output_component_{nullptr};
 
- RTTR_ENABLE(Module)
 };
 
 class ArucoComponent : public ModuleComponent {
@@ -49,7 +48,7 @@ class ArucoComponent : public ModuleComponent {
  protected:
     std::shared_ptr<ArucoModule> aruco_module_;
 
- RTTR_ENABLE(ModuleComponent)
+
 };
 
 class ArucoOutputComponent : public ArucoComponent {
@@ -60,7 +59,7 @@ class ArucoOutputComponent : public ArucoComponent {
 
     void SendInvalid(Timestamp ts);
 
- RTTR_ENABLE(ModuleComponent)
+
 };
 
 class ArucoDebugOutputComponent : public ArucoComponent {
@@ -69,7 +68,7 @@ class ArucoDebugOutputComponent : public ArucoComponent {
 
     void Send(cv::Mat debug_image, Timestamp ts);
 
- RTTR_ENABLE(ModuleComponent)
+
 };
 
 }

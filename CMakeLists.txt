@@ -12,13 +12,12 @@ project(${CONAN_PACKAGE_NAME}_PROJECT VERSION ${CONAN_PACKAGE_VERSION})
 
 include(traact_default_library_setup)
 
-add_library(${CONAN_PACKAGE_NAME}
+add_library(${CONAN_PACKAGE_NAME} SHARED
         src/ArucoModule.h
         src/ArucoModule.cpp
         src/ArucoInput.cpp
         src/ArucoOutput.cpp
         src/ArucoDebugOutput.cpp
-        src/ArucoDebugOutput.h
         src/ArucoFractalModule.cpp
         src/ArucoFractalModule.h
         src/ArucoFractalDebugOutput.cpp
@@ -26,7 +25,7 @@ add_library(${CONAN_PACKAGE_NAME}
         src/ArucoFractalInput.cpp
         src/ArucoFractalPoseOutput.cpp
         src/ArucoFractalPosition2dListOutput.cpp
-        src/ArucoFractalPosition3dListOutput.cpp)
+        src/ArucoFractalPosition3dListOutput.cpp src/ArucoFractalTracker.cpp)
 
 conan_target_link_libraries(${CONAN_PACKAGE_NAME})
 

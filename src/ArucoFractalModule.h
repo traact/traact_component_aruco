@@ -44,13 +44,11 @@ namespace traact::component::aruco {
         ArucoFractalDebugOutputComponent* debug_output_component_{nullptr};
 
 
-    RTTR_ENABLE(Module)
     };
 
     class ArucoFractalComponent : public ModuleComponent {
     public:
-        ArucoFractalComponent(const std::string &name, const ComponentType traact_component_type,
-                       const ModuleType module_type);
+        ArucoFractalComponent(const std::string &name, const ModuleType module_type);
 
         std::string getModuleKey() override;
         Module::Ptr instantiateModule() override;
@@ -58,7 +56,7 @@ namespace traact::component::aruco {
     protected:
         std::shared_ptr<ArucoFractalModule> aruco_module_;
 
-    RTTR_ENABLE(ModuleComponent)
+
     };
 
     class ArucoFractalPoseOutputComponent : public ArucoFractalComponent {
@@ -69,7 +67,7 @@ namespace traact::component::aruco {
 
         void SendInvalid(Timestamp ts);
 
-    RTTR_ENABLE(ModuleComponent, ArucoFractalComponent)
+
     };
 
     class ArucoFractalPosition3dListOutputComponent : public ArucoFractalComponent {
@@ -80,7 +78,7 @@ namespace traact::component::aruco {
 
         void SendInvalid(Timestamp ts);
 
-        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
+
     };
 
     class ArucoFractalPosition2dListOutputComponent : public ArucoFractalComponent {
@@ -91,7 +89,7 @@ namespace traact::component::aruco {
 
         void SendInvalid(Timestamp ts);
 
-        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
+
     };
 
     class ArucoFractalDebugOutputComponent : public ArucoFractalComponent {
@@ -100,7 +98,7 @@ namespace traact::component::aruco {
 
         void Send(cv::Mat debug_image, Timestamp ts);
 
-        RTTR_ENABLE(ModuleComponent,ArucoFractalComponent)
+
     };
 
 

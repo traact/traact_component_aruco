@@ -40,17 +40,17 @@ namespace traact::component::aruco {
         return std::make_shared<ArucoFractalModule>();
     }
 
-    ArucoFractalComponent::ArucoFractalComponent(const std::string &name, const ComponentType traact_component_type,
-                                   const ModuleType module_type) : ModuleComponent(name, traact_component_type,
+    ArucoFractalComponent::ArucoFractalComponent(const std::string &name,
+                                                 const ModuleType module_type) : ModuleComponent(name,
                                                                                    module_type) {}
 
-    ArucoFractalPoseOutputComponent::ArucoFractalPoseOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
+    ArucoFractalPoseOutputComponent::ArucoFractalPoseOutputComponent(const std::string &name) : ArucoFractalComponent(name, ModuleType::GLOBAL) {}
 
-    ArucoFractalPosition2dListOutputComponent::ArucoFractalPosition2dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
+    ArucoFractalPosition2dListOutputComponent::ArucoFractalPosition2dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ModuleType::GLOBAL) {}
 
-    ArucoFractalPosition3dListOutputComponent::ArucoFractalPosition3dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {}
+    ArucoFractalPosition3dListOutputComponent::ArucoFractalPosition3dListOutputComponent(const std::string &name) : ArucoFractalComponent(name, ModuleType::GLOBAL) {}
 
-    ArucoFractalDebugOutputComponent::ArucoFractalDebugOutputComponent(const std::string &name) : ArucoFractalComponent(name, ComponentType::INTERNAL_SYNC_SOURCE, ModuleType::GLOBAL) {
+    ArucoFractalDebugOutputComponent::ArucoFractalDebugOutputComponent(const std::string &name) : ArucoFractalComponent(name, ModuleType::GLOBAL) {
 
     }
 
@@ -261,7 +261,7 @@ namespace traact::component::aruco {
             return;
         }
         auto& output = buffer->getOutput<vision::ImageHeader::NativeType, vision::ImageHeader>(0);
-        output.SetCpuMat(debug_image);
+        output.update(debug_image);
         buffer->commit(true);
     }
 

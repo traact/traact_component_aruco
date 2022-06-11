@@ -8,11 +8,11 @@ namespace traact::component::aruco {
         explicit ArucoFractalPosition2dListOutput(const std::string &name)
                 : ArucoFractalPoseOutputComponent(name) {}
 
-        traact::pattern::Pattern::Ptr GetPattern() const override{
+        static traact::pattern::Pattern::Ptr GetPattern(){
             using namespace traact::vision;
             traact::pattern::Pattern::Ptr
                     pattern =
-                    std::make_shared<traact::pattern::Pattern>("ArucoFractalPosition2dListOutput", Concurrency::SERIAL);
+                    std::make_shared<traact::pattern::Pattern>("ArucoFractalPosition2dListOutput", Concurrency::SERIAL, ComponentType::INTERNAL_SYNC_SOURCE);
 
             pattern->addProducerPort("outputPoints2d", spatial::Position2DListHeader::MetaType);
 
@@ -25,20 +25,16 @@ namespace traact::component::aruco {
             return true;
         }
 
-        RTTR_ENABLE(Component, ModuleComponent,ArucoFractalPoseOutputComponent)
+
 
     };
 
 
 
+CREATE_TRAACT_COMPONENT_FACTORY(ArucoFractalPosition2dListOutput)
+
 }
 
-
-// It is not possible to place the macro multiple times in one cpp file. When you compile your plugin with the gcc toolchain,
-// make sure you use the compiler option: -fno-gnu-unique. otherwise the unregistration will not work properly.
-RTTR_PLUGIN_REGISTRATION // remark the different registration macro!
-{
-
-    using namespace rttr;
-    registration::class_<traact::component::aruco::ArucoFractalPosition2dListOutput>("ArucoFractalPosition2dListOutput").constructor<std::string>()();
-}
+BEGIN_TRAACT_PLUGIN_REGISTRATION
+    REGISTER_DEFAULT_COMPONENT(traact::component::aruco::ArucoFractalPosition2dListOutput)
+END_TRAACT_PLUGIN_REGISTRATION
