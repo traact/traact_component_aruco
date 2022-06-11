@@ -18,14 +18,7 @@ add_library(${CONAN_PACKAGE_NAME} SHARED
         src/ArucoInput.cpp
         src/ArucoOutput.cpp
         src/ArucoDebugOutput.cpp
-        src/ArucoFractalModule.cpp
-        src/ArucoFractalModule.h
-        src/ArucoFractalDebugOutput.cpp
-        src/ArucoFractalDebugOutput.h
-        src/ArucoFractalInput.cpp
-        src/ArucoFractalPoseOutput.cpp
-        src/ArucoFractalPosition2dListOutput.cpp
-        src/ArucoFractalPosition3dListOutput.cpp src/ArucoFractalTracker.cpp)
+        src/ArucoFractalTracker.cpp)
 
 conan_target_link_libraries(${CONAN_PACKAGE_NAME})
 
