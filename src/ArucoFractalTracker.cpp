@@ -28,7 +28,7 @@ class ArucoFractalTracker : public Component {
         traact::pattern::Pattern::Ptr
             pattern =
             std::make_shared<traact::pattern::Pattern>("ArucoFractalTracker",
-                                                       Concurrency::SERIAL,
+                                                       Concurrency::UNLIMITED,
                                                        ComponentType::SYNC_FUNCTIONAL);
 
         pattern->addConsumerPort<InPortImage>("input")
