@@ -14,15 +14,15 @@ class ArucoOutput : public ArucoOutputComponent {
             pattern =
             std::make_shared<traact::pattern::Pattern>("ArucoOutput", Concurrency::SERIAL, ComponentType::INTERNAL_SYNC_SOURCE);
 
-        pattern->addProducerPort("output", spatial::Pose6DHeader::MetaType);
+        pattern->addProducerPort("output", spatial::Pose6DHeader::NativeTypeName);
         pattern->addParameter("marker_id", 0);
 
         return pattern;
     }
 
-    bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
+    bool configure(const pattern::instance::PatternInstance &pattern_instance, buffer::ComponentBufferConfig *data) override {
         aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-        pattern::setValueFromParameter(parameter, "marker_id", marker_id_, 0);
+        pattern::setValueFromParameter(pattern_instance, "marker_id", marker_id_, 0);
         aruco_module_->AddOutput(marker_id_, this);
         return true;
     }

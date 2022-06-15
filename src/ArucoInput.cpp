@@ -25,17 +25,18 @@ class ArucoInput : public ArucoComponent {
         return pattern;
     }
 
-    bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
+    bool configure(const pattern::instance::PatternInstance &pattern_instance, buffer::ComponentBufferConfig *data) override {
         aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
         cv::aruco::PREDEFINED_DICTIONARY_NAME dict;
-        pattern::setValueFromParameter(parameter,
+
+        pattern::setValueFromParameter(pattern_instance,
                                        "Dictionary",
                                        dict,
                                        "DICT_4X4_50",
                                        {{"DICT_4X4_50", cv::aruco::DICT_4X4_50},
                                         {"DICT_5X5_50", cv::aruco::DICT_5X5_50},
                                         {"DICT_6X6_50", cv::aruco::DICT_6X6_50}});
-        pattern::setValueFromParameter(parameter, "MarkerSize", marker_size_, 0.08);
+        pattern::setValueFromParameter(pattern_instance, "MarkerSize", marker_size_, 0.08);
 
         dictionary_ = cv::aruco::getPredefinedDictionary(dict);
 

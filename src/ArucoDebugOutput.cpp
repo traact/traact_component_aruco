@@ -14,12 +14,12 @@ class ArucoDebugOutput : public ArucoDebugOutputComponent {
             pattern =
             std::make_shared<traact::pattern::Pattern>("ArucoDebugOutput", Concurrency::SERIAL, ComponentType::INTERNAL_SYNC_SOURCE);
 
-        pattern->addProducerPort("output", vision::ImageHeader::MetaType);
+        pattern->addProducerPort("output", vision::ImageHeader::NativeTypeName);
 
         return pattern;
     }
 
-    bool configure(const nlohmann::json &parameter, buffer::ComponentBufferConfig *data) override {
+    bool configure(const pattern::instance::PatternInstance &pattern_instance, buffer::ComponentBufferConfig *data) override {
         aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
         aruco_module_->SetDebugOutput(this);
         return true;
