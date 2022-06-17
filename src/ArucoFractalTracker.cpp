@@ -121,7 +121,15 @@ class ArucoFractalTracker : public Component {
         // pose could be detected
         if (connected_output_ports_[OutPortDebugImage::PortIdx]) {
             auto &debug_image = data.getOutput<OutPortDebugImage>().getImage();
+            auto& debug_image_header = data.getOutputHeader<OutPortDebugImage>();
+            debug_image_header.width = input_image.cols;
+            debug_image_header.height = input_image.rows;
+            debug_image_header.pixel_format = PixelFormat::RGB;
+            debug_image_header.base_type = BaseType::UINT_8;
+            debug_image_header.channels = 3;
+            debug_image_header.stride = debug_image_header.width;
             cv::cvtColor(input_image, debug_image, cv::COLOR_GRAY2RGB);
+
             if (found_marker) {
                 FractalDetector.draw3d(debug_image);
             } else {
