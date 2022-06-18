@@ -24,3 +24,4 @@ class TraactPackage(ConanFile):
         self.traact_requires("traact_spatial", "latest")
         self.traact_requires("traact_vision", "latest")
         self.requires("aruco/3.1.15@camposs/stable")
+        self.requires("opencv/4.5.5@camposs/stable")

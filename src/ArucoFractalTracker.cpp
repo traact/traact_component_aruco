@@ -15,8 +15,8 @@ class ArucoFractalTracker : public Component {
     using InPortCalibration = traact::buffer::PortConfig<vision::CameraCalibrationHeader, 1>;
 
     using OutPortPose = traact::buffer::PortConfig<spatial::Pose6DHeader, 0>;
-    using OutPortPosition2D = traact::buffer::PortConfig<spatial::Position2DListHeader, 1>;
-    using OutPortPosition3D = traact::buffer::PortConfig<spatial::Position3DListHeader, 2>;
+    using OutPortPosition2D = traact::buffer::PortConfig<vision::Position2DListHeader, 1>;
+    using OutPortPosition3D = traact::buffer::PortConfig<vision::Position3DListHeader, 2>;
     using OutPortDebugImage = traact::buffer::PortConfig<vision::ImageHeader, 3>;
 
     ArucoFractalTracker(const std::string &name)
@@ -106,14 +106,12 @@ class ArucoFractalTracker : public Component {
                 cv2traact(r_vec, t_vec, output);
             }
             if (connected_output_ports_[OutPortPosition2D::PortIdx]) {
-                auto points2d = FractalDetector.getPoints2d(input_image);
                 auto &output = data.getOutput<OutPortPosition2D>();
-                cv2traact(points2d, output);
+                output = FractalDetector.getPoints2d(input_image);
             }
             if (connected_output_ports_[OutPortPosition3D::PortIdx]) {
-                auto points3d = FractalDetector.getPoints3d(input_image);
                 auto &output = data.getOutput<OutPortPosition3D>();
-                cv2traact(points3d, output);
+                output = FractalDetector.getPoints3d(input_image);
             }
             found_marker = true;
         }
