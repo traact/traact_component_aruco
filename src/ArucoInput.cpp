@@ -47,7 +47,7 @@ class ArucoInput : public ArucoComponent {
 
     bool processTimePoint(traact::buffer::ComponentBuffer &data) override {
         using namespace traact::vision;
-        const auto &input_image = data.getInput<InPortImage>().getImage();
+        const auto &input_image = data.getInput<InPortImage>().value();
         const auto &input_calibration = data.getInput<InPortCalibration>();
 
         return aruco_module_->TrackMarker(data.getTimestamp(), input_image, input_calibration, dictionary_,

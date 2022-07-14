@@ -66,7 +66,7 @@ class ArucoFractalTracker : public Component {
 
     bool processTimePoint(traact::buffer::ComponentBuffer &data) override {
         using namespace traact::vision;
-        const auto input_image = data.getInput<InPortImage>().getImage();
+        const auto input_image = data.getInput<InPortImage>().value();
         const auto &input_calibration = data.getInput<InPortCalibration>();
 
         SPDLOG_TRACE("ArucoFractalModule TrackMarker");
@@ -118,7 +118,7 @@ class ArucoFractalTracker : public Component {
 
         // pose could be detected
         if (connected_output_ports_[OutPortDebugImage::PortIdx]) {
-            auto &debug_image = data.getOutput<OutPortDebugImage>().getImage();
+            auto &debug_image = data.getOutput<OutPortDebugImage>().value();
             auto& debug_image_header = data.getOutputHeader<OutPortDebugImage>();
             debug_image_header.width = input_image.cols;
             debug_image_header.height = input_image.rows;
