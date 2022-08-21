@@ -38,7 +38,7 @@ class ArucoFractalTracker : public Component {
             .addProducerPort<OutPortDebugImage>("output_debug_image")
             .addParameter("MarkerConfig", "FRACTAL_2L_6",
                           {"FRACTAL_2L_6", "FRACTAL_3L_6", "FRACTAL_4L_6", "FRACTAL_5L_6",})
-            .addParameter("MarkerSize", 0.08);
+            .addParameter("marker_size", 0.08);
 
         return pattern;
     }
@@ -58,7 +58,7 @@ class ArucoFractalTracker : public Component {
                                            {"FRACTAL_5L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_5L_6}
                                        });
 
-        pattern::setValueFromParameter(pattern_instance, "MarkerSize", marker_size_, 0.10);
+        pattern::setValueFromParameter(pattern_instance, "marker_size", marker_size_, 0.10);
 
         marker_config_ = config;
         return true;

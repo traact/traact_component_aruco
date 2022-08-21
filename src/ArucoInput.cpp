@@ -21,7 +21,7 @@ class ArucoInput : public ArucoComponent {
         pattern->addConsumerPort<InPortImage>("input")
             .addConsumerPort<InPortCalibration>("input_calibration")
             .addParameter("Dictionary", "DICT_4X4_50", {"DICT_4X4_50", "DICT_5X5_50", "DICT_6X6_50"})
-            .addParameter("MarkerSize", 0.08);
+            .addParameter("marker_size", 0.08);
         return pattern;
     }
 
@@ -36,7 +36,7 @@ class ArucoInput : public ArucoComponent {
                                        {{"DICT_4X4_50", cv::aruco::DICT_4X4_50},
                                         {"DICT_5X5_50", cv::aruco::DICT_5X5_50},
                                         {"DICT_6X6_50", cv::aruco::DICT_6X6_50}});
-        pattern::setValueFromParameter(pattern_instance, "MarkerSize", marker_size_, 0.08);
+        pattern::setValueFromParameter(pattern_instance, "marker_size", marker_size_, 0.08);
 
         dictionary_ = cv::aruco::getPredefinedDictionary(dict);
 
