@@ -36,7 +36,7 @@ class ArucoFractalTracker : public Component {
             .addProducerPort<OutPortPosition2D>("output_position2D")
             .addProducerPort<OutPortPosition3D>("output_position3D")
             .addProducerPort<OutPortDebugImage>("output_debug_image")
-            .addParameter("MarkerConfig", "FRACTAL_2L_6",
+            .addParameter("marker_config", "FRACTAL_2L_6",
                           {"FRACTAL_2L_6", "FRACTAL_3L_6", "FRACTAL_4L_6", "FRACTAL_5L_6",})
             .addParameter("marker_size", 0.08);
 
@@ -50,7 +50,7 @@ class ArucoFractalTracker : public Component {
     bool configure(const pattern::instance::PatternInstance &pattern_instance, buffer::ComponentBufferConfig *data) override {
 
         ::aruco::FractalMarkerSet::CONF_TYPES config;
-        pattern::setValueFromParameter(pattern_instance, "MarkerConfig", config, "FRACTAL_2L_6",
+        pattern::setValueFromParameter(pattern_instance, "marker_config", config, "FRACTAL_2L_6",
                                        {
                                            {"FRACTAL_2L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_2L_6},
                                            {"FRACTAL_3L_6", ::aruco::FractalMarkerSet::CONF_TYPES::FRACTAL_3L_6},
