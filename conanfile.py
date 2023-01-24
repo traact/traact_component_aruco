@@ -20,7 +20,7 @@ class TraactPackage(ConanFile):
 
     def requirements(self):
         if self.options.with_tests:
-            self.requires("gtest/[>=1.11.0]")
+            self.requires("gtest/cci.20210126")
         self.traact_requires("traact_spatial", "latest")
         self.traact_requires("traact_vision", "latest")
         self.requires("aruco/3.1.15@camposs/stable")
