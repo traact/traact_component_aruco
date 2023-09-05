@@ -27,7 +27,7 @@ class ArucoInput : public ArucoComponent {
 
     bool configure(const pattern::instance::PatternInstance &pattern_instance, buffer::ComponentBufferConfig *data) override {
         aruco_module_ = std::dynamic_pointer_cast<ArucoModule>(module_);
-        cv::aruco::PREDEFINED_DICTIONARY_NAME dict;
+        cv::aruco::PredefinedDictionaryType dict;
 
         pattern::setValueFromParameter(pattern_instance,
                                        "dictionary",
@@ -38,9 +38,10 @@ class ArucoInput : public ArucoComponent {
                                         {"DICT_6X6_50", cv::aruco::DICT_6X6_50}});
         pattern::setValueFromParameter(pattern_instance, "marker_size", marker_size_, 0.08);
 
-        dictionary_ = cv::aruco::getPredefinedDictionary(dict);
+        auto dictionary = cv::aruco::getPredefinedDictionary(dict);
+        auto parameter = cv::aruco::DetectorParameters();
 
-        parameter_ = cv::aruco::DetectorParameters::create();
+        detector_ = std::make_unique<cv::aruco::ArucoDetector>(dictionary, parameter);
 
         return true;
     }
@@ -50,18 +51,17 @@ class ArucoInput : public ArucoComponent {
         const auto &input_image = data.getInput<InPortImage>().value();
         const auto &input_calibration = data.getInput<InPortCalibration>();
 
-        return aruco_module_->TrackMarker(data.getTimestamp(), input_image, input_calibration, dictionary_,
-                                          parameter_, marker_size_);
+        return aruco_module_->TrackMarker(data.getTimestamp(), input_image, input_calibration, detector_, marker_size_);
     }
 
     // crucial in this module component as all outputs are independent sources from the dataflows point of view, so if no input is available then all outputs must send invalid
     bool processTimePointWithInvalid(buffer::ComponentBuffer &data) override {
         aruco_module_->SendNoValidInput(data.getTimestamp());
+        return true;
     }
 
  private:
-    cv::Ptr<cv::aruco::Dictionary> dictionary_;
-    cv::Ptr<cv::aruco::DetectorParameters> parameter_;
+    std::unique_ptr<cv::aruco::ArucoDetector> detector_;
     double marker_size_;
 
 };

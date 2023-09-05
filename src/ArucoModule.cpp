@@ -2,6 +2,7 @@
 #include <opencv2/aruco.hpp>
 #include <traact/opencv/OpenCVUtils.h>
 #include <opencv2/imgproc.hpp>
+
 namespace traact::component::aruco {
 
 void ArucoModule::AddOutput(int marker_id, ArucoOutputComponent *output_component) {
@@ -52,21 +53,17 @@ ArucoDebugOutputComponent::ArucoDebugOutputComponent(const std::string &name) : 
 
 }
 
-bool ArucoModule::TrackMarker(Timestamp ts, const cv::Mat &image,
-                              const traact::vision::CameraCalibration &calibration,
-                              const cv::Ptr<cv::aruco::Dictionary> &dictionary,
-                              const cv::Ptr<cv::aruco::DetectorParameters> &parameter, double marker_size) {
+bool ArucoModule::TrackMarker(Timestamp ts, const cv::Mat &image, const traact::vision::CameraCalibration &calibration,
+                              std::unique_ptr<cv::aruco::ArucoDetector> &detector, double marker_size) {
 
     SPDLOG_INFO("ArucoModule TrackMarker");
 
     std::vector<std::vector<cv::Point2f>> markers, rejected_candidates;
     std::vector<int32_t> marker_ids;
-    cv::aruco::detectMarkers(
+    detector->detectMarkers(
         image,
-        dictionary,
         markers,
         marker_ids,
-        parameter,
         rejected_candidates);
 
     if (debug_output_component_) {

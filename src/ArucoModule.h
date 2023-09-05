@@ -26,8 +26,7 @@ class ArucoModule : public Module {
     void SetDebugOutput(ArucoDebugOutputComponent *debug_output_component);
 
     bool TrackMarker(Timestamp ts, const cv::Mat &image, const traact::vision::CameraCalibration &calibration,
-                     const cv::Ptr<cv::aruco::Dictionary> &dictionary,
-                     const cv::Ptr<cv::aruco::DetectorParameters> &parameter, double marker_size);
+                     std::unique_ptr<cv::aruco::ArucoDetector> &detector,double marker_size);
 
     void SendNoValidInput(Timestamp ts);
 
