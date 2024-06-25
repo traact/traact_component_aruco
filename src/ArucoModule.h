@@ -41,6 +41,8 @@ class ArucoComponent : public ModuleComponent {
     ArucoComponent(const std::string &name, const ComponentType traact_component_type,
                    const ModuleType module_type);
 
+
+
     std::string getModuleKey() override;
     Module::Ptr instantiateModule() override;
 
